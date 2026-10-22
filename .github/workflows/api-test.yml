@@ -1,0 +1,29 @@
+name: API Automated Tests
+on:
+  push:
+    branches: [ main ]
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+      - name: Install Newman and HTML Extra Reporter
+        run: |
+          npm install -g newman
+          npm install -g newman-reporter-htmlextra
+      - name: Run Newman CLI
+        run: |
+          newman run ReqRes_Collection.json \
+          -e ReqRes_Environment.json \
+          -d users.csv \
+          --reporters cli,htmlextra \
+          --reporter-htmlextra-export report.html
+      - name: Upload HTML Report Artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: api-report
+          path: report.html
